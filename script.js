@@ -6,22 +6,23 @@ class Convert {
         this.currensyChoisToBuy = document.querySelector('.buy__selected');
         this.fieldValueCurrensyToSale = document.querySelector('[name="sale"]');
         this.fieldValueCurrensyToBuy = document.querySelector('[name="buy"]');
-        this.fieldForexToSale = document.querySelector('.sale__forex');
-        this.fieldForexToBuy = document.querySelector('.buy__forex');
+        this.fieldForexToSale = document.querySelector('.s-exchange');
+        this.fieldForexToBuy = document.querySelector('.b-exchange');
         this.forexToSale = 0;
         this.forexToBuy = 0;
+        this.currQuotations = [];
     }
 
     setEventListenerForSelectedCurrensy() {
-        let currensiesToSale = document.querySelectorAll('.sale__button_currency');
-        let currensiesToBuy = document.querySelectorAll('.buy__button_currency');
+        let currensiesToSale = document.querySelectorAll('.s-button-cur');
+        let currensiesToBuy = document.querySelectorAll('.b-button-cur');
 
         currensiesToSale.forEach((currency) => {
             currency.addEventListener('click', (event) => {
                 this.currensyChoisToSale.classList.remove('sale__selected');
                 this.currensyChoisToSale = event.target;
                 this.currensyChoisToSale.classList.add('sale__selected');
-                this.GetExchangeRateFromServer(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
+                this.getRate(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
             })
         });
 
@@ -30,7 +31,7 @@ class Convert {
                 this.currensyChoisToBuy.classList.remove('buy__selected');
                 this.currensyChoisToBuy = event.target;
                 this.currensyChoisToBuy.classList.add('buy__selected');
-                this.GetExchangeRateFromServer(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
+                this.getRate(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
             })
         });
     }
@@ -46,37 +47,58 @@ class Convert {
     }
 
     /**
-     * Запрос курса валюты на сервере
-     * @param {*} base Валюта, которую хотим поменять
-     * @param {*} symbol Валюта, на которую хотим поменять
+     * TODO изменить место запроса курсов для возможности отображения полной функциональности
      */
-    GetExchangeRateFromServer(base, symbol) {
+    async getRate(base, symbol) {
         if (base === symbol) {
             this.forexToSale = this.forexToBuy = 1;
             this.updateInfo();
             return;
         }
 
-        let messageError = document.querySelector('.main__error');
+        let messageError = document.querySelector('.c-error');
         messageError.textContent = '';
 
-        console.log(this.url + `access_key=${this.apiKey}&base=${base}&symbols=${symbol}`)
-        fetch(this.url + `access_key=${this.apiKey}&base=${base}&symbols=${symbol}`)
-            .then(request => request.json())
-            .then(data => {
-                console.log(data.rates[symbol]);
-                this.forexToSale = data.rates[symbol];
-                this.forexToBuy = 1 / this.forexToSale;
-                this.updateInfo();
-            })
-            .catch(error => {
-                messageError.textContent = 'Что-то пошло не так. Попробуйте ещё раз';
-                this.forexToSale = this.forexToBuy = 0;
-                this.updateInfo();
-                console.log(error);
-            })
+        // Заполняем массив с котировками только первый раз
+        // TODO сделать автообновление курсов раз в полчаса
+        if (this.currQuotations.length == 0) {
+            await fetch("https://www.cbr-xml-daily.ru/daily_json.js")
+                .then(response => response.json())
+                .then(data => {
+
+                    // console.log(data); // check response
+                    this.currQuotations = [
+                        new CurrQuotation('EUR', Number(data.Valute.EUR.Value)),
+                        new CurrQuotation('GBP', Number(data.Valute.GBP.Value)),
+                        new CurrQuotation('USD', Number(data.Valute.USD.Value)),
+                    ]
+                })
+                .catch(error => {
+                    messageError.textContent = 'Что-то пошло не так. Попробуйте ещё раз';
+                    this.forexToSale = this.forexToBuy = 0;
+                    this.updateInfo();
+                    console.log(error);
+                });
+            this.handleDataRates(base, symbol);
+        } else this.handleDataRates(base, symbol);
     }
 
+    handleDataRates(base, symbol) {
+        let dataRates = () => {
+            if (base === 'RUB') {
+                return this.getQuotation(symbol);
+            } else if (symbol === 'RUB') {
+                return this.getQuotation(base);
+            } else {
+                let first = this.getQuotation(base);
+                let second = this.getQuotation(symbol);
+                return Number(first) / Number(second); // like EUR = 89.6731 / USD = 73.587 = 1.2185
+            }
+        };
+        this.forexToSale = dataRates();
+        this.forexToBuy = 1 / this.forexToSale;
+        this.updateInfo();
+    }
 
     updateInfo(isSale = true) {
         this.fieldForexToSale.textContent = `1 ${this.currensyChoisToSale.textContent} = ${this.forexToSale.toFixed(4)} ${this.currensyChoisToBuy.textContent}`;
@@ -88,19 +110,17 @@ class Convert {
         }
     }
 
-    /**
-     * Округление до 4 знаков после запятой
-     * @param {*} number Числок, которое округляем
-     * @returns Округленное число
-     */
+    getQuotation(filterParam) {
+        return this.currQuotations.find(el => el.curr === filterParam).quotation;
+    }
+
     roundNumber(number) {
-        //сколько знаков после запятой нужно
         let i = 4;
         return Math.round(number * (10 ** i)) / (10 ** i)
     }
 
     init() {
-        this.GetExchangeRateFromServer(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
+        this.getRate(this.currensyChoisToSale.dataset.currency, this.currensyChoisToBuy.dataset.currency);
         this.setEventListenerForSelectedCurrensy();
         this.setEventListenerForInput();
     }
@@ -108,3 +128,10 @@ class Convert {
 
 let convert = new Convert();
 convert.init();
+
+class CurrQuotation {
+    constructor(curr, quotation) {
+        this.curr = curr;
+        this.quotation = quotation;
+    }
+}
