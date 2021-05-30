@@ -12,9 +12,6 @@ class Convert {
         this.forexToBuy = 0;
     }
 
-    /**
-     * Добавить обработчик событий при изменении валюты
-     */
     setEventListenerForSelectedCurrensy() {
         let currensiesToSale = document.querySelectorAll('.s-button-cur');
         let currensiesToBuy = document.querySelectorAll('.b-button-cur');
@@ -38,9 +35,6 @@ class Convert {
         });
     }
 
-    /**
-     * Добавить обработчик событий при вводе суммы для обмена
-     */
     setEventListenerForInput() {
         this.fieldValueCurrensyToSale.addEventListener('input', () => {
             this.updateInfo(true);
@@ -52,9 +46,7 @@ class Convert {
     }
 
     /**
-     * Запрос курса валюты на сервере
-     * @param {*} base Валюта, которую хотим поменять
-     * @param {*} symbol Валюта, на которую хотим поменять
+     * TODO изменить место запроса курсов для возможности отображения полной функциональности
      */
     GetExchangeRateFromServer(base, symbol) {
         if (base === symbol) {
@@ -83,10 +75,7 @@ class Convert {
             })
     }
 
-    /**
-     * Обновление информации на странице
-     * @param {*} isSale Изменяем валюту, которая есть (по умолчанию TRUE)
-     */
+
     updateInfo(isSale = true) {
         this.fieldForexToSale.textContent = `1 ${this.currensyChoisToSale.textContent} = ${this.forexToSale.toFixed(4)} ${this.currensyChoisToBuy.textContent}`;
         this.fieldForexToBuy.textContent = `1 ${this.currensyChoisToBuy.textContent} = ${this.forexToBuy.toFixed(4)} ${this.currensyChoisToSale.textContent}`;
@@ -97,13 +86,8 @@ class Convert {
         }
     }
 
-    /**
-     * Округление до 4 знаков после запятой
-     * @param {*} number Числок, которое округляем
-     * @returns Округленное число
-     */
+
     roundNumber(number) {
-        //сколько знаков после запятой нужно
         let i = 4;
         return Math.round(number * (10 ** i)) / (10 ** i)
     }
