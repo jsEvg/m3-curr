@@ -6,15 +6,15 @@ class Convert {
         this.currensyChoisToBuy = document.querySelector('.buy__selected');
         this.fieldValueCurrensyToSale = document.querySelector('[name="sale"]');
         this.fieldValueCurrensyToBuy = document.querySelector('[name="buy"]');
-        this.fieldForexToSale = document.querySelector('.s-exchange');
-        this.fieldForexToBuy = document.querySelector('.b-exchange');
+        this.fieldForexToSale = document.querySelector('.sale__forex');
+        this.fieldForexToBuy = document.querySelector('.buy__forex');
         this.forexToSale = 0;
         this.forexToBuy = 0;
     }
 
     setEventListenerForSelectedCurrensy() {
-        let currensiesToSale = document.querySelectorAll('.s-button-cur');
-        let currensiesToBuy = document.querySelectorAll('.b-button-cur');
+        let currensiesToSale = document.querySelectorAll('.sale__button_currency');
+        let currensiesToBuy = document.querySelectorAll('.buy__button_currency');
 
         currensiesToSale.forEach((currency) => {
             currency.addEventListener('click', (event) => {
@@ -46,7 +46,9 @@ class Convert {
     }
 
     /**
-     * TODO изменить место запроса курсов для возможности отображения полной функциональности
+     * Запрос курса валюты на сервере
+     * @param {*} base Валюта, которую хотим поменять
+     * @param {*} symbol Валюта, на которую хотим поменять
      */
     GetExchangeRateFromServer(base, symbol) {
         if (base === symbol) {
@@ -55,7 +57,7 @@ class Convert {
             return;
         }
 
-        let messageError = document.querySelector('.c-error');
+        let messageError = document.querySelector('.main__error');
         messageError.textContent = '';
 
         console.log(this.url + `access_key=${this.apiKey}&base=${base}&symbols=${symbol}`)
@@ -86,8 +88,13 @@ class Convert {
         }
     }
 
-
+    /**
+     * Округление до 4 знаков после запятой
+     * @param {*} number Числок, которое округляем
+     * @returns Округленное число
+     */
     roundNumber(number) {
+        //сколько знаков после запятой нужно
         let i = 4;
         return Math.round(number * (10 ** i)) / (10 ** i)
     }
