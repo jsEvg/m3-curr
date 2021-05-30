@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Конвертер валют</title>
+</head>
+
+<body>
+    <header>
+        <div class="header__wrapper">
+            <div class="header__logo">
+                <img src="images/logo.svg" alt="logo">
+            </div>
+            <div class="h-menu central-wrapper">
+                <div class="h-menu-text">Банк</div>
+                <div class="h-menu-text">Бизнес</div>
+                <div class="h-menu-text">Инвестиции</div>
+                <div class="h-menu-text">Страхование</div>
+                <div class="h-menu-text">Мобайл</div>
+                <div class="h-menu-text">Путешествия</div>
+                <div class="h-menu-text">Равлечения</div>
+            </div>
+            <div class="header__button">Войти</div>
+        </div>
+    </header>
+    <main class="central-wrapper">
+        <h1 class="c-title">Конвертер валют онлайн</h1>
+        <div class="c-error"></div>
+        <div class="c-workspace">
+            <div class="work-space-s">
+                <p class="s-text">У меня есть</p>
+                <div class="s-button">
+                    <div class="s-button-cur" data-currency="RUB">RUB</div>
+                    <div class="s-button-cur" data-currency="USD">USD</div>
+                    <div class="s-button-cur sale__selected" data-currency="EUR">EUR</div>
+                    <div class="s-button-cur" data-currency="GBP">GBP</div>
+                </div>
+                <div class="s-inp">
+                    <input type="number" name="sale" class="s-field" step="0.0001" value=1>
+                    <div class="s-exchange">1 EUR = </div>
+                </div>
+            </div>
+            <div class="work-space-b">
+                <p class="b-text">Хочу приобрести</p>
+                <div class="b-button">
+                    <div class="b-button-cur" data-currency="RUB">RUB</div>
+                    <div class="b-button-cur buy__selected" data-currency="USD">USD</div>
+                    <div class="b-button-cur" data-currency="EUR">EUR</div>
+                    <div class="b-button-cur" data-currency="GBP">GBP</div>
+                </div>
+                <div class="b-input">
+                    <input type="number" name="buy" class="b-field" step="0.0001" value=1>
+                    <div class="b-exchange">1 USD = </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src='script.js'></script>
+</body>
+
+</html>
